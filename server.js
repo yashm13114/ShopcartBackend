@@ -26,7 +26,7 @@ app.use(
         origin: "http://localhost:5173",
     })
 );
-const port = 5000;
+const port = process.env.PORT;
 app.listen(port, () => {
     console.log("server is running at: " + port);
 });
