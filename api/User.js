@@ -5,7 +5,7 @@ const UserVerification = require("../models/UserVerification");
 const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const keysecret = process.env.SECRET_KEY;
