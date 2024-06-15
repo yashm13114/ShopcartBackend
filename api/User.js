@@ -28,7 +28,8 @@ transporter.verify((error, success) => {
     }
 });
 const sendVerificationEmail = ({ _id, email }, res) => {
-    const currentUrl = "http://localhost:5000/";
+    // const currentUrl = "http://localhost:5000/";
+    const currentUrl = "https://shopcartbackend-lkkk.onrender.com";
     const uniqueString = uuidv4() + _id;
 
     const mailOptions = {
@@ -508,7 +509,8 @@ router.post("/sendpasswordlink", async(req, res) => {
                 from: process.env.AUTH_EMAIL,
                 to: email,
                 subject: "Email For password Reset",
-                text: `This Link Valid For 2 MINUTES http://localhost:5173/#/forgotpass/${userfind.id}/${setusertoken.verifytoken}`,
+                // text: `This Link Valid For 2 MINUTES http://localhost:5173/#/forgotpass/${userfind.id}/${setusertoken.verifytoken}`,
+                text: `This Link Valid For 2 MINUTES https://yashm13114.github.io/ShopCart-Ecommerce-/#/forgotpass/${userfind.id}/${setusertoken.verifytoken}`,
             };
 
             transporter.sendMail(mailOptions, (error, info) => {
