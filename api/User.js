@@ -29,7 +29,7 @@ transporter.verify((error, success) => {
 });
 const sendVerificationEmail = ({ _id, email }, res) => {
     // const currentUrl = "http://localhost:5000/";
-    const currentUrl = "https://shopcartbackend-lkkk.onrender.com";
+    const currentUrl = "https://shopcartbackend-lkkk.onrender.com/";
     const uniqueString = uuidv4() + _id;
 
     const mailOptions = {
