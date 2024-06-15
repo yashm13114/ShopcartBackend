@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .message {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        
+        .error {
+            color: #e74c3c;
+        }
+        
+        .success {
+            color: #2ecc71;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #3498db;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="message">
+            <!-- The error or success message will be dynamically inserted here -->
+            <p id="status-message"></p>
+        </div>
+        <a href="http://localhost:5173/#/login" class="btn">Login</a>
+    </div>
+
+    <script>
+        // Function to get URL parameters
+        function getQueryParams() {
+            const params = {};
+            window.location.search.substring(1).split('&').forEach(pair => {
+                const [key, value] = pair.split('=');
+                params[key] = decodeURIComponent(value);
+            });
+            return params;
+        }
+
+        // Get the message from the URL and display it
+        const params = getQueryParams();
+        const statusMessageElement = document.getElementById('status-message');
+
+        if (params.error === 'true') {
+            statusMessageElement.textContent = params.message;
+            statusMessageElement.classList.add('error');
+        } else {
+            statusMessageElement.textContent = 'Your email has been successfully verified!';
+            statusMessageElement.classList.add('success');
+        }
+    </script>
+</body>
+
+</html>
