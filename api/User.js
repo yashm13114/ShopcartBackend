@@ -4,6 +4,7 @@ const User = require("../models/User");
 const UserVerification = require("../models/UserVerification");
 const nodemailer = require("nodemailer");
 const { v4: uuidv4 } = require("uuid");
+const authenticate = require('../authentication');
 require("dotenv").config();
 const bcrypt = require("bcryptjs");
 const path = require("path");
@@ -366,125 +367,125 @@ router.post("/signup", async(req, res) => {
 
 // signin for localstorage correct// Assuming bcryptjs for password hashing
 
-router.post("/signin", (req, res) => {
-    const { email, password } = req.body;
-
-    if (email === "" || password === "") {
-        return res.json({
-            status: "FAILED",
-            message: "Fill input fields",
-        });
-    }
-
-    User.findOne({ email })
-        .then((user) => {
-            if (!user) {
-                return res.json({
-                    status: "FAILED",
-                    message: "Invalid credentials entered",
-                });
-            }
-
-            if (!user.verified) {
-                return res.json({
-                    status: "FAILED",
-                    message: "Email hasn't been verified yet. Check your inbox",
-                });
-            }
-
-            // Compare hashed password with user provided password
-            bcrypt.compare(password, user.password)
-                .then((passwordMatch) => {
-                    if (!passwordMatch) {
-                        return res.json({
-                            status: "FAILED",
-                            message: "Invalid password entered",
-                        });
-                    }
-
-                    // If credentials are valid, return the user data
-                    return res.json({
-                        status: "SUCCESS",
-                        message: "Sign in successful",
-                        user
-                    });
-                })
-                .catch((e) => {
-                    console.error("Error while comparing passwords:", e);
-                    return res.json({
-                        status: "FAILED",
-                        message: "Error while comparing passwords",
-                    });
-                });
-        })
-        .catch((e) => {
-            console.error("Error occurred while checking for existing user:", e);
-            return res.json({
-                status: "FAILED",
-                message: "Error occurred while checking for existing user",
-            });
-        });
-});
-
-
-// router.post("/signin", async(req, res) => {
+// router.post("/signin", (req, res) => {
 //     const { email, password } = req.body;
 
-//     if (!email || !password) {
-//         return res.status(422).json({ error: "Fill all the details" });
+//     if (email === "" || password === "") {
+//         return res.json({
+//             status: "FAILED",
+//             message: "Fill input fields",
+//         });
 //     }
 
-//     try {
-//         // Find user by email
-//         const user = await User.findOne({ email });
+//     User.findOne({ email })
+//         .then((user) => {
+//             if (!user) {
+//                 return res.json({
+//                     status: "FAILED",
+//                     message: "Invalid credentials entered",
+//                 });
+//             }
 
-//         if (!user) {
-//             return res
-//                 .status(401)
-//                 .json({ status: "FAILED", message: "Invalid credentials" });
-//         }
+//             if (!user.verified) {
+//                 return res.json({
+//                     status: "FAILED",
+//                     message: "Email hasn't been verified yet. Check your inbox",
+//                 });
+//             }
 
-//         if (!user.verified) {
+//             // Compare hashed password with user provided password
+//             bcrypt.compare(password, user.password)
+//                 .then((passwordMatch) => {
+//                     if (!passwordMatch) {
+//                         return res.json({
+//                             status: "FAILED",
+//                             message: "Invalid password entered",
+//                         });
+//                     }
+
+//                     // If credentials are valid, return the user data
+//                     return res.json({
+//                         status: "SUCCESS",
+//                         message: "Sign in successful",
+//                         user
+//                     });
+//                 })
+//                 .catch((e) => {
+//                     console.error("Error while comparing passwords:", e);
+//                     return res.json({
+//                         status: "FAILED",
+//                         message: "Error while comparing passwords",
+//                     });
+//                 });
+//         })
+//         .catch((e) => {
+//             console.error("Error occurred while checking for existing user:", e);
 //             return res.json({
 //                 status: "FAILED",
-//                 message: "Email hasn't been verified yet. Check your inbox",
+//                 message: "Error occurred while checking for existing user",
 //             });
-//         }
-
-//         // Compare passwords
-//         const isMatch = await bcrypt.compare(password, user.password);
-
-//         if (!isMatch) {
-//             return res.json({
-//                 status: "FAILED",
-//                 message: "Invalid password entered",
-//             });
-//         }
-
-//         // Generate authentication token
-//         const token = await user.generateAuthToken();
-
-//         // Set cookie
-//         res.cookie("usercookie", token, {
-//             expires: new Date(Date.now() + 9000000),
-//             httpOnly: true,
 //         });
-
-//         // Respond with success
-//         const result = {
-//             user,
-//             token,
-//         };
-//         res.status(201).json({
-//             status: "SUCCESS",
-//             message: "Signin successful",
-//             result
-//         });
-//     } catch (error) {
-//         console.error("Signin error:", error);
-//         res.status(500).json({ status: "FAILED", message: "Server error" });
-//     }
 // });
+
+
+router.post("/signin", async(req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(422).json({ error: "Fill all the details" });
+    }
+
+    try {
+        // Find user by email
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res
+                .status(401)
+                .json({ status: "FAILED", message: "Invalid credentials" });
+        }
+
+        if (!user.verified) {
+            return res.json({
+                status: "FAILED",
+                message: "Email hasn't been verified yet. Check your inbox",
+            });
+        }
+
+        // Compare passwords
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.json({
+                status: "FAILED",
+                message: "Invalid password entered",
+            });
+        }
+
+        // Generate authentication token
+        const token = await user.generateAuthToken();
+
+        // Set cookie
+        res.cookie("usercookie", token, {
+            expires: new Date(Date.now() + 9000000),
+            httpOnly: true,
+        });
+
+        // Respond with success
+        const result = {
+            user,
+            token,
+        };
+        res.status(201).json({
+            status: "SUCCESS",
+            message: "Signin successful",
+            result
+        });
+    } catch (error) {
+        console.error("Signin error:", error);
+        res.status(500).json({ status: "FAILED", message: "Server error" });
+    }
+});
 router.post("/sendpasswordlink", async(req, res) => {
     console.log(req.body);
 
@@ -597,5 +598,50 @@ router.get("/logout", async(req, res) => {
         res.status(500).json({ status: 500, error: "Logout failed" });
     }
 });
+router.get('/profile/:userId', async(req, res) => {
+    const { userId } = req.params;
 
+    try {
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ status: "FAILED", message: "User not found" });
+        }
+
+        res.status(200).json({
+            status: "SUCCESS",
+            user
+        });
+    } catch (error) {
+        console.error("Error fetching user profile:", error);
+        res.status(500).json({ status: "FAILED", message: "Server error" });
+    }
+});
+router.put('/update/:id', async(req, res) => {
+    const userId = req.params.id;
+    const { name, email, mobileNumber } = req.body;
+
+    try {
+        // Update user data
+        const updatedUser = await User.findByIdAndUpdate(userId, { name, email, mobileNumber }, { new: true });
+
+        if (!updatedUser) {
+            return res.status(404).json({
+                status: 'FAILED',
+                message: 'User not found',
+            });
+        }
+
+        res.json({
+            status: 'SUCCESS',
+            message: 'User data updated successfully',
+            user: updatedUser,
+        });
+    } catch (error) {
+        console.error('Error updating user data:', error);
+        res.status(500).json({
+            status: 'FAILED',
+            message: 'An error occurred while updating user data',
+        });
+    }
+});
 module.exports = router;
